@@ -9,7 +9,7 @@
 import React, { Component, createElement } from 'react';
 import PropTypes from 'prop-types';
 import Autolinker from 'autolinker';
-import { Alert, Linking, Platform, StyleSheet, Text } from 'react-native';
+import { Alert, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import matchers from './matchers';
 
 const tagBuilder = Autolinker.prototype.getTagBuilder();
@@ -17,7 +17,17 @@ const tagBuilder = Autolinker.prototype.getTagBuilder();
 const styles = StyleSheet.create({
   link: {
     color: '#0E7AFE',
+    alignItems: 'center',
   },
+  partialText: {
+    marginLeft: 0,
+    marginRight: 0
+  },
+  container: {
+    flex: 1,
+    flexDirection: 'row'
+
+  }
 });
 
 export default class Autolink extends Component {
@@ -131,7 +141,7 @@ export default class Autolink extends Component {
       <Text
         {...textProps}
         key={index}
-        style={[styles.link, this.props.linkStyle]}
+        style={[this.props.style, styles.link, this.props.linkStyle, styles.partialText]}
         onPress={() => this.onPress(match)}
         onLongPress={() => this.onLongPress(match)}
       >
@@ -157,6 +167,7 @@ export default class Autolink extends Component {
       showAlert,
       stripPrefix,
       style,
+      containerStyle,
       text,
       truncate,
       truncateChars,
@@ -230,7 +241,7 @@ export default class Autolink extends Component {
       .map((part, index) => {
         const match = matches[part];
 
-        if (!match) return part;
+        if (!match) return (<Text style={[style, styles.partialText]}> {part} </Text>);
 
         switch (match.getType()) {
           case 'email':
@@ -243,13 +254,13 @@ export default class Autolink extends Component {
               renderLink(match.getAnchorText(), match, index) :
               this.renderLink(match.getAnchorText(), match, index, other);
           default:
-            return part;
+            return (<Text style={[style, styles.partialText]}> {part} </Text>);
         }
       });
-
-    return createElement(Text, {
+    console.log("nodes", nodes);
+    return createElement(View, {
       ref: (component) => { this._root = component; }, // eslint-disable-line no-underscore-dangle
-      style,
+      style: [containerStyle, styles.container],
       ...other,
     }, ...nodes);
   }
